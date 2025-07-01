@@ -1,23 +1,180 @@
-<!doctype html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Road Map Interactive Journey</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      height: 100%;
+      font-family: Arial, sans-serif;
+    }
+    .background-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      background-size: cover;
+      background-position: center;
+      transition: background-image 0.5s ease;
+    }
+    .top-right-logo {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 50px;
+      height: 50px;
+    }
+    .date-time {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: white;
+      font-size: 14px;
+    }
+    .middle-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0) 50%, rgba(0,0,0,0.25) 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .aligned-container {
+      text-align: center;
+      color: white;
+    }
+    .main-image {
+      width: 50%;
+      margin-top: 10px;
+    }
+    .lock-overlay {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+    .lock-overlay.shake {
+      animation: shake 0.5s;
+    }
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      50% { transform: translateX(5px); }
+      75% { transform: translateX(-5px); }
+      100% { transform: translateX(0); }
+    }
+    .carousel {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      height: 100%;
+    }
+    .slide {
+      flex: 0 0 100vw;
+      scroll-snap-align: start;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="background-container" id="background">
+    <img class="top-right-logo" src="logo.svg" alt="logo" />
+    <div class="date-time" id="dateTime"></div>
+    <div class="middle-container">
+      <div class="carousel" id="carousel">
+        <div class="slide" data-title="Title 1" data-image="main1.svg">
+          <div class="aligned-container">
+            <h1 class="Top_Title">Title 1</h1>
+            <img class="main-image" src="main1.svg" alt="main1">
+          </div>
+        </div>
+        <div class="slide" data-title="Title 2" data-image="main2.svg">
+          <div class="aligned-container">
+            <h1 class="Top_Title">Title 2</h1>
+            <img class="main-image" src="main2.svg" alt="main2">
+          </div>
+        </div>
+        <div class="slide" data-title="Title 3" data-image="main3.svg">
+          <div class="aligned-container">
+            <h1 class="Top_Title">Title 3</h1>
+            <img class="main-image" src="main3.svg" alt="main3">
+          </div>
+        </div>
+        <div class="slide" data-title="Title 4" data-image="main4.svg">
+          <div class="aligned-container">
+            <h1 class="Top_Title">Title 4</h1>
+            <img class="main-image" src="main4.svg" alt="main4">
+          </div>
+        </div>
+        <!-- keep adding more slides here -->
+      </div>
+    </div>
+    <img class="lock-overlay" src="lock.svg" id="lock" alt="lock icon"/>
+  </div>
 
-<html>
-    <head>
-        <meta charset="utf-8">
+  <audio id="lockSound" src="lock-click.mp3"></audio>
 
-        <title>Blank template</title>
+  <script>
+    const background = document.getElementById('background');
+    const carousel = document.getElementById('carousel');
+    const lock = document.getElementById('lock');
+    const lockSound = document.getElementById('lockSound');
 
-        <!-- Load external CSS styles -->
-        <link rel="stylesheet" href="styles.css">
+    const backgrounds = [
+      "background1.jpg",
+      "background2.jpg",
+      "background3.jpg"
+    ];
 
-    </head>
+    function updateBackground(slideIndex) {
+      const groupIndex = Math.floor(slideIndex / 3) % backgrounds.length;
+      background.style.backgroundImage = `url('${backgrounds[groupIndex]}')`;
+    }
 
-    <body>
+    carousel.addEventListener('scroll', () => {
+      const index = Math.round(carousel.scrollLeft / window.innerWidth);
+      updateBackground(index);
 
-        <h1>My awesome space</h1>
-        
-        <!-- Load external JavaScript -->
-        <script src="scripts.js"></script>
-        
-    </body>
+      const currentSlide = carousel.children[index];
+      if (currentSlide) {
+        const title = currentSlide.getAttribute('data-title');
+        const imageSrc = currentSlide.getAttribute('data-image');
+        currentSlide.querySelector('h1').textContent = title;
+        currentSlide.querySelector('.main-image').src = imageSrc;
+      }
+    });
 
+    lock.addEventListener('click', () => {
+      lock.classList.add('shake');
+      lockSound.play();
+      setTimeout(() => lock.classList.remove('shake'), 500);
+    });
+
+    // date and time
+    function updateDateTime() {
+      const now = new Date();
+      document.getElementById('dateTime').textContent = now.toLocaleString();
+    }
+    setInterval(updateDateTime, 1000);
+    updateDateTime();
+
+    // initial background
+    updateBackground(0);
+  </script>
+</body>
 </html>
